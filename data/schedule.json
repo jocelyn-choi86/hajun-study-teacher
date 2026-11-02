@@ -1,0 +1,108 @@
+{
+  "student": "하준",
+  "note": "시간은 30분 단위 근사치. targetMinutes는 원본 표의 요일 옆 숫자.",
+  "daily": ["필사", "한자", "책"],
+  "days": {
+    "mon": {
+      "label": "월", "targetMinutes": 35,
+      "events": [
+        {"name": "학교", "start": "09:00", "end": "14:30"},
+        {"name": "영어 학원", "start": "15:00", "end": "18:30"}
+      ],
+      "tasks": [
+        {"subject": "엘리하이", "title": "국어, 초등수학", "minutes": 15},
+        {"subject": "학교", "title": "자유글쓰기", "minutes": 20},
+        {"subject": "수학", "title": "연산"},
+        {"subject": "수학", "title": "6-2"},
+        {"subject": "영어", "title": "단어 외우기"}
+      ]
+    },
+    "tue": {
+      "label": "화", "targetMinutes": 90,
+      "events": [
+        {"name": "학교", "start": "09:00", "end": "14:30"},
+        {"name": "수영", "start": "18:00", "end": "19:00"}
+      ],
+      "tasks": [
+        {"subject": "엘리하이", "title": "국어, 과학, 사회, 중학수학", "minutes": 15},
+        {"subject": "학교", "title": "두줄 독서록", "minutes": 10},
+        {"subject": "국어", "title": "문학 독해 1개", "minutes": 15},
+        {"subject": "수학", "title": "연산 (중학연산)"},
+        {"subject": "수학", "title": "중학수학"},
+        {"subject": "영어", "title": ""},
+        {"subject": "영어", "title": "단어 외우기"},
+        {"subject": "사회", "title": "엘리하이 1강의 + 코넬 + 문제 + 오답", "minutes": 25},
+        {"subject": "과학", "title": "엘리하이 1강의 + 문제 + 오답", "minutes": 25}
+      ]
+    },
+    "wed": {
+      "label": "수", "targetMinutes": 50,
+      "events": [
+        {"name": "학교", "start": "09:00", "end": "14:30"},
+        {"name": "수학과외", "start": "15:30", "end": "17:00"},
+        {"name": "국어 다독", "start": "17:00", "end": "18:30"},
+        {"name": "농구", "start": "19:30", "end": "21:30"}
+      ],
+      "tasks": [
+        {"subject": "엘리하이", "title": "영어, 국어", "minutes": 15},
+        {"subject": "영어", "title": ""},
+        {"subject": "영어", "title": "단어 TEST"}
+      ]
+    },
+    "thu": {
+      "label": "목", "targetMinutes": 90,
+      "events": [
+        {"name": "학교", "start": "09:00", "end": "14:30"},
+        {"name": "수영", "start": "18:00", "end": "19:00"}
+      ],
+      "tasks": [
+        {"subject": "엘리하이", "title": "비문학국어, 영어, 사회, 과학", "minutes": 15},
+        {"subject": "학교", "title": "두줄 독서록", "minutes": 10},
+        {"subject": "국어", "title": "비문학 독해 1개", "minutes": 15},
+        {"subject": "수학", "title": "연산"},
+        {"subject": "수학", "title": "6-2"},
+        {"subject": "영어", "title": ""},
+        {"subject": "영어", "title": "단어 외우기", "note": "전날 못 본 단어 TEST"},
+        {"subject": "사회", "title": "엘리하이 1강의 + 코넬 + 문제 + 오답", "minutes": 25},
+        {"subject": "과학", "title": "엘리하이 1강의 + 문제 + 오답", "minutes": 25}
+      ]
+    },
+    "fri": {
+      "label": "금", "targetMinutes": 20,
+      "events": [
+        {"name": "학교", "start": "09:00", "end": "14:30"},
+        {"name": "영어", "start": "16:30", "end": "18:30"},
+        {"name": "농구", "start": "19:30", "end": "21:30"}
+      ],
+      "tasks": [
+        {"subject": "엘리하이", "title": "초등국어, 수학", "minutes": 20},
+        {"subject": "수학", "title": "연산"},
+        {"subject": "수학", "title": "6-2"},
+        {"subject": "영어", "title": "단어 외우기"}
+      ]
+    },
+    "sat": {
+      "label": "토", "targetMinutes": 85,
+      "events": [],
+      "tasks": [
+        {"subject": "엘리하이", "title": "비교과 국어", "minutes": 30},
+        {"subject": "학교", "title": "자유 독서록"},
+        {"subject": "국어", "title": "어휘"},
+        {"subject": "수학", "title": "연산 (중학연산)"},
+        {"subject": "수학", "title": "중학수학"},
+        {"subject": "영어", "title": "리딩 책 복습/예습"},
+        {"subject": "영어", "title": "단어 테스트", "note": "전부 정답 시 재테스트 X, 틀린 단어 10번씩"}
+      ]
+    },
+    "sun": {
+      "label": "일", "targetMinutes": 100,
+      "events": [
+        {"name": "교회", "start": "10:30", "end": "13:00"}
+      ],
+      "tasks": [
+        {"subject": "영어", "title": "리딩 책 복습/예습"},
+        {"subject": "영어", "title": "단어테스트 2차", "note": "틀린 단어 10번씩"}
+      ]
+    }
+  }
+}
