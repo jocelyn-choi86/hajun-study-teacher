@@ -1,11 +1,6 @@
 {
   "student": "하준",
-  "note": "시간은 30분 단위 근사치.",
-  "daily": [
-    "필사",
-    "한자",
-    "책"
-  ],
+  "note": "시간은 30분 단위 근사치. studyMinutes = 하루 공부 가능 시간(분), null = 미정.",
   "days": {
     "mon": {
       "label": "월",
@@ -21,30 +16,7 @@
           "end": "18:30"
         }
       ],
-      "tasks": [
-        {
-          "subject": "엘리하이",
-          "title": "국어, 초등수학",
-          "minutes": 15
-        },
-        {
-          "subject": "학교",
-          "title": "자유글쓰기",
-          "minutes": 20
-        },
-        {
-          "subject": "수학",
-          "title": "연산"
-        },
-        {
-          "subject": "수학",
-          "title": "6-2"
-        },
-        {
-          "subject": "영어",
-          "title": "단어 외우기"
-        }
-      ]
+      "studyMinutes": 60
     },
     "tue": {
       "label": "화",
@@ -60,49 +32,7 @@
           "end": "19:00"
         }
       ],
-      "tasks": [
-        {
-          "subject": "엘리하이",
-          "title": "국어, 과학, 사회, 중학수학",
-          "minutes": 15
-        },
-        {
-          "subject": "학교",
-          "title": "두줄 독서록",
-          "minutes": 10
-        },
-        {
-          "subject": "국어",
-          "title": "문학 독해 1개",
-          "minutes": 15
-        },
-        {
-          "subject": "수학",
-          "title": "연산 (중학연산)"
-        },
-        {
-          "subject": "수학",
-          "title": "중학수학"
-        },
-        {
-          "subject": "영어",
-          "title": ""
-        },
-        {
-          "subject": "영어",
-          "title": "단어 외우기"
-        },
-        {
-          "subject": "사회",
-          "title": "엘리하이 1강의 + 코넬 + 문제 + 오답",
-          "minutes": 25
-        },
-        {
-          "subject": "과학",
-          "title": "엘리하이 1강의 + 문제 + 오답",
-          "minutes": 25
-        }
-      ]
+      "studyMinutes": 180
     },
     "wed": {
       "label": "수",
@@ -128,21 +58,7 @@
           "end": "21:30"
         }
       ],
-      "tasks": [
-        {
-          "subject": "엘리하이",
-          "title": "영어, 국어",
-          "minutes": 15
-        },
-        {
-          "subject": "영어",
-          "title": ""
-        },
-        {
-          "subject": "영어",
-          "title": "단어 TEST"
-        }
-      ]
+      "studyMinutes": 60
     },
     "thu": {
       "label": "목",
@@ -158,50 +74,7 @@
           "end": "19:00"
         }
       ],
-      "tasks": [
-        {
-          "subject": "엘리하이",
-          "title": "비문학국어, 영어, 사회, 과학",
-          "minutes": 15
-        },
-        {
-          "subject": "학교",
-          "title": "두줄 독서록",
-          "minutes": 10
-        },
-        {
-          "subject": "국어",
-          "title": "비문학 독해 1개",
-          "minutes": 15
-        },
-        {
-          "subject": "수학",
-          "title": "연산"
-        },
-        {
-          "subject": "수학",
-          "title": "6-2"
-        },
-        {
-          "subject": "영어",
-          "title": ""
-        },
-        {
-          "subject": "영어",
-          "title": "단어 외우기",
-          "note": "전날 못 본 단어 TEST"
-        },
-        {
-          "subject": "사회",
-          "title": "엘리하이 1강의 + 코넬 + 문제 + 오답",
-          "minutes": 25
-        },
-        {
-          "subject": "과학",
-          "title": "엘리하이 1강의 + 문제 + 오답",
-          "minutes": 25
-        }
-      ]
+      "studyMinutes": 180
     },
     "fri": {
       "label": "금",
@@ -222,61 +95,12 @@
           "end": "21:30"
         }
       ],
-      "tasks": [
-        {
-          "subject": "엘리하이",
-          "title": "초등국어, 수학",
-          "minutes": 20
-        },
-        {
-          "subject": "수학",
-          "title": "연산"
-        },
-        {
-          "subject": "수학",
-          "title": "6-2"
-        },
-        {
-          "subject": "영어",
-          "title": "단어 외우기"
-        }
-      ]
+      "studyMinutes": 60
     },
     "sat": {
       "label": "토",
       "events": [],
-      "tasks": [
-        {
-          "subject": "엘리하이",
-          "title": "비교과 국어",
-          "minutes": 30
-        },
-        {
-          "subject": "학교",
-          "title": "자유 독서록"
-        },
-        {
-          "subject": "국어",
-          "title": "어휘"
-        },
-        {
-          "subject": "수학",
-          "title": "연산 (중학연산)"
-        },
-        {
-          "subject": "수학",
-          "title": "중학수학"
-        },
-        {
-          "subject": "영어",
-          "title": "리딩 책 복습/예습"
-        },
-        {
-          "subject": "영어",
-          "title": "단어 테스트",
-          "note": "전부 정답 시 재테스트 X, 틀린 단어 10번씩"
-        }
-      ]
+      "studyMinutes": null
     },
     "sun": {
       "label": "일",
@@ -285,19 +109,25 @@
           "name": "교회",
           "start": "10:30",
           "end": "13:00"
-        }
-      ],
-      "tasks": [
-        {
-          "subject": "영어",
-          "title": "리딩 책 복습/예습"
         },
         {
-          "subject": "영어",
-          "title": "단어테스트 2차",
-          "note": "틀린 단어 10번씩"
+          "name": "점심",
+          "start": "13:00",
+          "end": "14:00"
+        },
+        {
+          "name": "야외 활동",
+          "start": "14:00",
+          "end": "17:00"
+        },
+        {
+          "name": "저녁",
+          "start": "18:00",
+          "end": "19:00"
         }
-      ]
+      ],
+      "studyMinutes": 0,
+      "note": "가족 시간. 공부 없음. 저녁에 책 읽기·영어 단어 테스트 등 보강만."
     }
   }
 }
