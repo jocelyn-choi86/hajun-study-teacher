@@ -1,0 +1,289 @@
+<title>하준이 공부 체크</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: a single notebook column — week strip on top, the chosen day's checklist below, ticked rows strike through like a planner. */
+:root{
+  --bg:#f3f6f9; --paper:#ffffff; --ink:#1d2733; --muted:#64748b; --line:#dbe3ec; --accent:#2f6fde; --done:#1f9d6a;
+  --kor:#d9485f; --math:#2f6fde; --eng:#1f9d6a; --soc:#c98a12; --sci:#0e8f9e; --etc:#7c6fb0;
+  --display:"Jua","IBM Plex Sans KR",system-ui,sans-serif;
+  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10161d; --paper:#18212b; --ink:#e6edf4; --muted:#94a3b8; --line:#2a3644; --accent:#6f9ff0; --done:#45c08d;
+  --kor:#f07186; --math:#6f9ff0; --eng:#45c08d; --soc:#e0aa44; --sci:#3fc0cf; --etc:#a89ce0; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10161d; --paper:#18212b; --ink:#e6edf4; --muted:#94a3b8; --line:#2a3644; --accent:#6f9ff0; --done:#45c08d;
+  --kor:#f07186; --math:#6f9ff0; --eng:#45c08d; --soc:#e0aa44; --sci:#3fc0cf; --etc:#a89ce0; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:400;font-size:1.9rem;margin:0;line-height:1.1;text-wrap:balance}
+.weeknav{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem}
+button{font:inherit;color:inherit}
+.iconbtn{border:1px solid var(--line);background:var(--paper);border-radius:8px;width:32px;height:32px;cursor:pointer}
+.iconbtn:hover{border-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:8px 2px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.day .d{font-family:var(--display);font-size:1.15rem;line-height:1}
+.day .n{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.day .bar{width:70%;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.day .bar i{display:block;height:100%;background:var(--done)}
+.day.today .n{color:var(--accent);font-weight:700}
+.day[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.day.sun .d{color:var(--kor)}
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.sheet-head{padding:16px 16px 12px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--line)}
+.sheet-title{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.sheet-title h2{font-family:var(--display);font-weight:400;font-size:1.45rem;margin:0}
+.sum{color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
+.sum b{color:var(--ink)}
+.prog{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--done);transition:width .25s}
+.events{display:flex;flex-wrap:wrap;gap:6px}
+.ev{font-size:.78rem;border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:var(--muted);font-variant-numeric:tabular-nums}
+ul{list-style:none;margin:0;padding:0}
+li.task{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;padding:12px 16px;border-bottom:1px solid var(--line)}
+li.task:last-child{border-bottom:0}
+li.task input[type=checkbox]{appearance:none;width:24px;height:24px;border:2px solid var(--line);border-radius:7px;margin:1px 0 0;cursor:pointer;display:grid;place-content:center;background:var(--paper)}
+li.task input[type=checkbox]:checked{background:var(--done);border-color:var(--done)}
+li.task input[type=checkbox]:checked::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.tbody{min-width:0;display:flex;flex-direction:column;gap:2px}
+.tline{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.tag{font-size:.72rem;font-weight:700;letter-spacing:.02em;color:var(--c);border:1px solid var(--c);border-radius:5px;padding:0 5px;line-height:1.5;flex:none}
+.tname{font-weight:500}
+.tnote{font-size:.82rem;color:var(--muted)}
+.min{font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;padding-top:2px}
+li.task.done .tname{text-decoration:line-through;text-decoration-color:var(--done);text-decoration-thickness:2px;color:var(--muted)}
+.hw{margin-top:6px;width:100%;box-sizing:border-box;border:1px dashed var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:.88rem;background:transparent;color:var(--ink);resize:vertical;min-height:36px}
+.hw:focus{border-style:solid;border-color:var(--eng);outline:none}
+.group{padding:8px 16px 4px;font-size:.75rem;letter-spacing:.06em;color:var(--muted);background:var(--bg);border-bottom:1px solid var(--line)}
+.rest{padding:28px 16px;text-align:center;color:var(--muted)}
+.rest strong{display:block;font-family:var(--display);font-weight:400;font-size:1.3rem;color:var(--ink);margin-bottom:4px}
+.status{font-size:.78rem;color:var(--muted);text-align:center}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.78rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.legend span::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c)}
+@media (max-width:420px){h1{font-size:1.6rem}.day .d{font-size:1rem}li.task{gap:10px;padding:12px}}
+@media (prefers-reduced-motion:reduce){.prog i{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>하준이 공부 체크</h1>
+    <div class="weeknav">
+      <button class="iconbtn" id="prevWeek" aria-label="지난주">‹</button>
+      <span id="weekLabel"></span>
+      <button class="iconbtn" id="nextWeek" aria-label="다음 주">›</button>
+    </div>
+  </header>
+
+  <nav class="days" id="days" aria-label="요일 선택"></nav>
+
+  <section class="sheet" id="sheet" aria-live="polite"></section>
+
+  <div class="legend">
+    <span style="--c:var(--kor)">국어</span><span style="--c:var(--math)">수학</span><span style="--c:var(--eng)">영어</span>
+    <span style="--c:var(--soc)">사회</span><span style="--c:var(--sci)">과학</span><span style="--c:var(--etc)">학교·기본</span>
+  </div>
+  <p class="status" id="status">불러오는 중…</p>
+</div>
+
+<script>
+// ---- 주간 계획 (data/weekly-plan.md v3) ----
+const C = {국어:"--kor",수학:"--math",영어:"--eng",사회:"--soc",과학:"--sci",학교:"--etc",기본:"--etc",엘리하이:"--etc"};
+const t = (id,tag,name,min,note,extra={}) => ({id,tag,name,min,note,...extra});
+const PLAN = {
+  mon:{label:"월",cap:60,events:["학교 ~14:30","영어 학원 15:00–18:30"],tasks:[
+    t("pilsa","기본","필사 · 한자",10),
+    t("calc","수학","연산 20문제",15),
+    t("writing","학교","자유글쓰기",20),
+    t("words","영어","단어 외우기",15),
+  ]},
+  tue:{label:"화",cap:180,events:["학교 ~14:30","수영 18:00–19:00"],tasks:[
+    t("pilsa","기본","필사 · 한자",10),
+    t("ellie","엘리하이","인강 영상: 사회 · 과학 · 중학수학",50),
+    t("readlog","학교","두줄 독서록",10),
+    t("lit","국어","문학 독해 1개",20,"메가스터디 문학 필수 개념 독해 1"),
+    t("calc","수학","연산 (중학연산) 20문제",15),
+    t("mmath","수학","중학수학 문제풀이",30,"개념원리 1-1 · 모르는 건 표시해 두기"),
+    t("soc","사회","1강 문제 + 코넬노트 + 오답",25,"백점 사회 6-2"),
+    t("sci","과학","1강 문제 + 오답",20,"오투 과학 6-2"),
+    t("words","영어","단어 외우기",15),
+  ]},
+  wed:{label:"수",cap:60,events:["학교 ~14:30","수학과외 15:30","국어 다독 17:00","농구 19:30–21:30"],tasks:[
+    t("pilsa","기본","필사 · 한자",10),
+    t("calc","수학","연산 20문제",15),
+    t("enghw","영어","과외 숙제 (금요일 수업)",25,"",{hw:true}),
+    t("wtest","영어","단어 TEST",10),
+  ]},
+  thu:{label:"목",cap:180,events:["학교 ~14:30","수영 18:00–19:00"],tasks:[
+    t("pilsa","기본","필사 · 한자",10),
+    t("ellie","엘리하이","인강 영상: 사회 · 과학",30),
+    t("readlog","학교","두줄 독서록",10),
+    t("nonlit","국어","비문학 독해 1개",20,"작 비문학 독해 2"),
+    t("m62","수학","6-2 문제풀이 (1장 반)",30,"디딤돌 응용 6-2 · 채점은 엄마·아빠"),
+    t("enghw","영어","과외 숙제 (금요일 수업)",30,"",{hw:true}),
+    t("words","영어","단어 외우기 + 전날 못 본 단어 TEST",15),
+    t("soc","사회","1강 문제 + 코넬노트 + 오답",25,"백점 사회 6-2"),
+    t("sci","과학","1강 문제 + 오답",20,"오투 과학 6-2"),
+  ]},
+  fri:{label:"금",cap:60,events:["학교 ~14:30","영어 16:30–18:30","농구 19:30–21:30"],tasks:[
+    t("pilsa","기본","필사 · 한자",10),
+    t("calc","수학","연산 20문제",15),
+    t("words","영어","단어 외우기",15),
+    t("enghw","영어","영어 숙제 마무리 · 오답",20,"영어 수업 전에 끝내기",{hw:true}),
+  ]},
+  sat:{label:"토",cap:180,events:["고정 일정 없음"],tasks:[
+    t("pilsa","기본","필사 · 한자",10),
+    t("ellie","엘리하이","인강 영상: 중학수학 · 비교과 국어",35),
+    t("mmath","수학","중학수학 문제풀이",30,"개념원리 1-1"),
+    t("m62","수학","6-2 문제풀이 (1장 반)",30,"디딤돌 응용 6-2"),
+    t("vocab","국어","어휘 1일차",15,"숨마 주니어 어휘력 1"),
+    t("calc","수학","연산 (중학연산) 20문제",15),
+    t("reading","영어","리딩 책 복습 · 예습 (월요일 수업)",20,"",{hw:true}),
+    t("wtest","영어","단어 테스트",10,"다 맞으면 재테스트 없음 · 틀린 단어 10번씩"),
+  ]},
+  sun:{label:"일",cap:0,events:["교회 10:30","야외 활동 14:00–17:00","가족 시간"],tasks:[
+    t("freelog","학교","자유 독서록 (저녁)",20),
+    t("wtest2","영어","단어테스트 2차 (저녁)",10,"틀린 단어 10번씩"),
+  ]},
+};
+const ORDER = ["mon","tue","wed","thu","fri","sat","sun"];
+const DAILY_BOOK = t("book","기본","책 읽기",0,"하루 마무리");
+
+// ---- 날짜 ----
+const pad = n => String(n).padStart(2,"0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());const k=(x.getDay()+6)%7;x.setDate(x.getDate()-k);return x;}
+const today = new Date();
+const thisMonday = mondayOf(today);
+let weekStart = new Date(thisMonday);
+let sel = ORDER[(today.getDay()+6)%7];
+
+// ---- 상태: weeks/<월요일날짜> = {checks:{mon:{id:true}}, hw:{mon:"..."}} ----
+let state = {checks:{},hw:{}};
+let db = null, unsub = null, writeTimer = null, writing = Promise.resolve(), readOnly = false;
+const LS = k => "hajun-check:"+k;
+const weekKey = () => ymd(weekStart);
+const status = msg => document.getElementById("status").textContent = msg;
+
+function lsLoad(){try{const v=localStorage.getItem(LS(weekKey()));return v?JSON.parse(v):null}catch(e){return null}}
+function lsSave(){try{localStorage.setItem(LS(weekKey()),JSON.stringify(state))}catch(e){}}
+
+function subscribe(){
+  if(unsub){unsub();unsub=null}
+  state = {checks:{},hw:{}};
+  if(!db){state = lsLoad()||state; render(); return}
+  render();
+  let timer = setTimeout(()=>status("저장소에 아직 연결하지 못했어요. 체크는 이 기기에만 임시로 보여요."),10000);
+  unsub = db.doc("weeks/"+weekKey()).onSnapshot(snap=>{
+    if(!snap.metadata.fromCache){clearTimeout(timer);status("체크하면 자동으로 저장돼요. 엄마·아빠도 같은 화면을 봐요.")}
+    if(snap.metadata.hasPendingWrites) return;
+    const d = snap.exists ? snap.data() : null;
+    const next = {checks:JSON.parse(JSON.stringify(d?.checks||{})),hw:{...(d?.hw||{})}};
+    const typing = document.activeElement && document.activeElement.classList.contains("hw");
+    if(typing) next.hw[sel] = state.hw[sel] || "";
+    if(JSON.stringify(next)===JSON.stringify(state)) return;
+    state = next;
+    if(!typing) render();
+  },err=>{clearTimeout(timer);status("저장소 연결이 끊겼어요. 새로고침해 주세요.")});
+}
+
+function save(){
+  lsSave();
+  if(!db||readOnly) return;
+  clearTimeout(writeTimer);
+  const key = weekKey(), body = JSON.parse(JSON.stringify(state));
+  writeTimer = setTimeout(()=>{
+    writing = writing.then(()=>db.doc("weeks/"+key).set({...body,updated:new Date().toISOString()}))
+      .catch(e=>{ if(e&&e.code==="invalid_argument"){readOnly=true;status("보기 전용이라 체크가 저장되지 않아요.")} else status("저장하지 못했어요. 잠시 뒤 다시 체크해 주세요."); });
+  },400);
+}
+
+// ---- 화면 ----
+function dayStats(k){
+  const p = PLAN[k], c = state.checks[k]||{};
+  const total = p.tasks.length, done = p.tasks.filter(x=>c[x.id]).length;
+  const minTotal = p.tasks.reduce((s,x)=>s+x.min,0), minDone = p.tasks.filter(x=>c[x.id]).reduce((s,x)=>s+x.min,0);
+  return {total,done,minTotal,minDone};
+}
+
+function render(){
+  const end = new Date(weekStart); end.setDate(end.getDate()+6);
+  document.getElementById("weekLabel").textContent = `${weekStart.getMonth()+1}/${weekStart.getDate()} – ${end.getMonth()+1}/${end.getDate()}`;
+  const daysEl = document.getElementById("days"); daysEl.textContent = "";
+  ORDER.forEach((k,i)=>{
+    const d = new Date(weekStart); d.setDate(d.getDate()+i);
+    const s = dayStats(k);
+    const b = document.createElement("button");
+    b.className = "day"+(ymd(d)===ymd(today)?" today":"")+(k==="sun"?" sun":"");
+    b.setAttribute("aria-pressed", k===sel);
+    b.setAttribute("aria-label", `${PLAN[k].label}요일 ${s.done}/${s.total} 완료`);
+    b.innerHTML = `<span class="d">${PLAN[k].label}</span><span class="n">${d.getMonth()+1}/${d.getDate()}</span><span class="bar"><i style="width:${s.total?Math.round(s.done/s.total*100):0}%"></i></span>`;
+    b.onclick = ()=>{sel=k;render()};
+    daysEl.appendChild(b);
+  });
+
+  const p = PLAN[sel], c = state.checks[sel]||{}, s = dayStats(sel);
+  const sheet = document.getElementById("sheet"); sheet.textContent = "";
+  const head = document.createElement("div"); head.className="sheet-head";
+  const capTxt = sel==="sun" ? "가족 시간 · 저녁 보강만" : `공부 시간 ${p.cap}분${sel==="sat"?" 이상":""}`;
+  head.innerHTML = `<div class="sheet-title"><h2>${p.label}요일</h2><span class="sum"><b>${s.done}</b> / ${s.total} 완료 · ${s.minDone}분 / 약 ${s.minTotal}분 · ${capTxt}</span></div>
+    <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="${s.total}" aria-valuenow="${s.done}"><i style="width:${s.total?s.done/s.total*100:0}%"></i></div>`;
+  const evs = document.createElement("div"); evs.className="events";
+  p.events.forEach(e=>{const sp=document.createElement("span");sp.className="ev";sp.textContent=e;evs.appendChild(sp)});
+  head.appendChild(evs); sheet.appendChild(head);
+
+  const ul = document.createElement("ul");
+  p.tasks.forEach(x=>ul.appendChild(row(x,c)));
+  sheet.appendChild(ul);
+  const g = document.createElement("div"); g.className="group"; g.textContent="매일"; sheet.appendChild(g);
+  const ul2 = document.createElement("ul"); ul2.appendChild(row(DAILY_BOOK,c)); sheet.appendChild(ul2);
+
+  if(s.total && s.done===s.total){
+    const r=document.createElement("div");r.className="rest";
+    r.innerHTML="<strong>오늘 할 일 끝!</strong>수고했어, 하준아.";
+    sheet.appendChild(r);
+  }
+}
+
+function row(x,c){
+  const li = document.createElement("li"); li.className="task"+(c[x.id]?" done":"");
+  const cb = document.createElement("input"); cb.type="checkbox"; cb.id=`cb-${sel}-${x.id}`; cb.checked=!!c[x.id];
+  cb.onchange = ()=>{
+    const m = state.checks[sel] = {...(state.checks[sel]||{})};
+    if(cb.checked) m[x.id]=true; else delete m[x.id];
+    save(); render();
+  };
+  const body = document.createElement("div"); body.className="tbody";
+  const line = document.createElement("label"); line.className="tline"; line.htmlFor=cb.id;
+  const tag = document.createElement("span"); tag.className="tag"; tag.style.setProperty("--c",`var(${C[x.tag]||"--etc"})`); tag.textContent=x.tag;
+  const nm = document.createElement("span"); nm.className="tname"; nm.textContent=x.name;
+  line.append(tag,nm); body.appendChild(line);
+  if(x.note){const n=document.createElement("span");n.className="tnote";n.textContent=x.note;body.appendChild(n)}
+  if(x.hw){
+    const ta=document.createElement("textarea"); ta.className="hw"; ta.id=`hw-${sel}`; ta.rows=1;
+    ta.placeholder="과외 숙제 적기 (예: 3800제 p.24–27, 리딩 Unit 5)"; ta.value=state.hw[sel]||"";
+    ta.setAttribute("aria-label",`${PLAN[sel].label}요일 영어 숙제 내용`);
+    ta.oninput=()=>{state.hw={...state.hw,[sel]:ta.value};save()};
+    body.appendChild(ta);
+  }
+  const mn = document.createElement("span"); mn.className="min"; mn.textContent = x.min?`${x.min}분`:"";
+  li.append(cb,body,mn);
+  return li;
+}
+
+document.getElementById("prevWeek").onclick=()=>{weekStart.setDate(weekStart.getDate()-7);subscribe()};
+document.getElementById("nextWeek").onclick=()=>{weekStart.setDate(weekStart.getDate()+7);subscribe()};
+
+render();
+(async()=>{
+  try{ db = window.claude?.use ? await window.claude.use("db") : null }catch(e){ db=null }
+  if(!db) status("이 화면에서는 체크가 이 기기에만 저장돼요.");
+  subscribe();
+})();
+</script>
