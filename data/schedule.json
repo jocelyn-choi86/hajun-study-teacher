@@ -1,6 +1,6 @@
 {
   "student": "하준",
-  "note": "시간은 30분 단위 근사치. studyMinutes = 하루 공부 가능 시간(분), null = 미정.",
+  "note": "시간은 30분 단위 근사치. studyMinutes = 하루 공부 가능 시간(분, 토요일은 최소치).",
   "days": {
     "mon": {
       "label": "월",
@@ -100,7 +100,8 @@
     "sat": {
       "label": "토",
       "events": [],
-      "studyMinutes": null
+      "studyMinutes": 180,
+      "note": "3시간 이상 가능"
     },
     "sun": {
       "label": "일",
