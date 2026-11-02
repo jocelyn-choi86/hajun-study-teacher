@@ -1,0 +1,16 @@
+{
+  "student": {"name": "하준", "gender": "남자", "grade": "초등 6학년"},
+  "subjects": [
+    {"subject": "국어", "detail": "문학독해", "book": "메가스터디 중학 국어 문학 필수 개념 독해 1", "amount": "1일차씩", "perWeek": "1", "method": "독학(문제집)", "notes": ["정답률 20~80% 편차 큼", "추론이 약함"]},
+    {"subject": "국어", "detail": "비문학독해", "book": "작 중학 국어 비문학 독해 2", "amount": "1일차씩", "perWeek": "1", "method": "독학(문제집)", "notes": ["정답률 20~80% 편차 큼"]},
+    {"subject": "국어", "detail": "어휘", "book": "숨마 주니어 내신 만점을 위한 중학 국어 어휘력 1", "amount": "1일차씩", "perWeek": "1", "method": "독학(문제집)", "notes": []},
+    {"subject": "국어", "detail": "논술", "book": "자체도서", "amount": null, "perWeek": "1", "method": "다독다독 학원", "notes": []},
+    {"subject": "수학", "detail": "연산", "book": "엄마표 AI 학습지 (Claude로 제작)", "amount": "20문제", "perWeek": "4-5", "method": "독학(문제지)", "notes": []},
+    {"subject": "수학", "detail": "교과수학", "book": "디딤돌 초등 수학 응용 6-2", "amount": "1장 반 정도", "perWeek": "2", "method": "과외 선생님 주1회 개념 설명, 문제풀이 독학, 채점 부모", "notes": []},
+    {"subject": "수학", "detail": "중학수학", "book": "Mbest 개념원리 중학수학 1-1", "amount": null, "perWeek": "2", "method": "개념 엘리하이 인강, 문제풀이 독학, 채점 부모", "notes": ["이해 안 되는 문제는 인강 문제풀이 수업 또는 과외 선생님께 질문"]},
+    {"subject": "영어", "detail": "문법", "book": "중학영문법 3800제 1학년 (2026)", "amount": null, "perWeek": "1", "method": "과외", "notes": []},
+    {"subject": "영어", "detail": "리딩", "book": "Wonderskills Reading Advanced 3", "amount": null, "perWeek": "1", "method": "과외", "notes": []},
+    {"subject": "사회", "detail": "교과 사회", "book": "동아 백점 초등 사회 6-2 (2026)", "amount": "1강씩", "perWeek": "2", "method": "개념 엘리하이 인강, 문제풀이 독학, 채점 부모", "notes": ["코넬노트로 요약"]},
+    {"subject": "과학", "detail": "교과 과학", "book": "오투 초등 과학 6-2 (2026)", "amount": "1강씩", "perWeek": "2", "method": "개념 엘리하이 인강, 문제풀이 독학, 채점 부모", "notes": ["코넬노트로 요약"]}
+  ]
+}
