@@ -69,15 +69,42 @@ li.task.done .tname{text-decoration:line-through;text-decoration-color:var(--don
 .legend span::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--c)}
 @media (max-width:420px){h1{font-size:1.6rem}.day .d{font-size:1rem}li.task{gap:10px;padding:12px}}
 @media (prefers-reduced-motion:reduce){.prog i{transition:none}}
+.topbtns{display:flex;gap:6px;align-items:center}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:.88rem}
+.btn:hover{border-color:var(--accent)}
+a.btn{text-decoration:none;color:var(--ink);white-space:nowrap}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper);font-weight:700}
+.btn.primary:disabled{opacity:.45;cursor:default}
+.btn.danger{color:var(--kor);border-color:var(--kor)}
+.ed-section{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.ed-section label.lbl{font-size:.78rem;letter-spacing:.04em;color:var(--muted)}
+.ed-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.inp{font:inherit;font-size:.9rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:6px 8px;min-width:0;box-sizing:border-box}
+.inp:focus{outline:none;border-color:var(--accent)}
+.inp.num{width:4.5em;font-variant-numeric:tabular-nums}
+.inp.grow{flex:1 1 180px}
+textarea.inp{width:100%;resize:vertical}
+li.edtask{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+li.edtask .ed-row .spacer{flex:1}
+.mini{border:1px solid var(--line);background:var(--paper);border-radius:6px;min-width:30px;height:30px;cursor:pointer;font-size:.85rem;padding:0 8px}
+.mini:hover{border-color:var(--accent)}
+.mini.del{color:var(--kor)}
+.chk{display:inline-flex;align-items:center;gap:5px;font-size:.85rem;color:var(--muted)}
+.ed-foot{padding:14px 16px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.confirm{display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--kor)}
+.dirty{font-size:.82rem;color:var(--soc)}
 </style>
 
 <div class="wrap">
   <header>
-    <h1>하준이 공부 체크</h1>
-    <div class="weeknav">
-      <button class="iconbtn" id="prevWeek" aria-label="지난주">‹</button>
-      <span id="weekLabel"></span>
-      <button class="iconbtn" id="nextWeek" aria-label="다음 주">›</button>
+    <h1 id="title">하준이 공부 체크</h1>
+    <div class="topbtns">
+      <div class="weeknav" id="weeknav">
+        <button class="iconbtn" id="prevWeek" aria-label="지난주">‹</button>
+        <span id="weekLabel"></span>
+        <button class="iconbtn" id="nextWeek" aria-label="다음 주">›</button>
+      </div>
+      <a class="btn" id="modeBtn" href="#edit" hidden>할 일 편집</a>
     </div>
   </header>
 
@@ -85,7 +112,7 @@ li.task.done .tname{text-decoration:line-through;text-decoration-color:var(--don
 
   <section class="sheet" id="sheet" aria-live="polite"></section>
 
-  <div class="legend">
+  <div class="legend" id="legend">
     <span style="--c:var(--kor)">국어</span><span style="--c:var(--math)">수학</span><span style="--c:var(--eng)">영어</span>
     <span style="--c:var(--soc)">사회</span><span style="--c:var(--sci)">과학</span><span style="--c:var(--etc)">학교·기본</span>
   </div>
@@ -96,7 +123,7 @@ li.task.done .tname{text-decoration:line-through;text-decoration-color:var(--don
 // ---- 주간 계획 (data/weekly-plan.md v3) ----
 const C = {국어:"--kor",수학:"--math",영어:"--eng",사회:"--soc",과학:"--sci",학교:"--etc",기본:"--etc",엘리하이:"--etc"};
 const t = (id,tag,name,min,note,extra={}) => ({id,tag,name,min,note,...extra});
-const PLAN = {
+const DEFAULT_PLAN = {
   mon:{label:"월",cap:60,events:["학교 ~14:30","영어 학원 15:00–18:30"],tasks:[
     t("pilsa","기본","필사 · 한자",10),
     t("calc","수학","연산 20문제",15),
@@ -155,135 +182,275 @@ const PLAN = {
 const ORDER = ["mon","tue","wed","thu","fri","sat","sun"];
 const DAILY_BOOK = t("book","기본","책 읽기",0,"하루 마무리");
 
+const TAGS = ["국어","수학","영어","사회","과학","학교","기본","엘리하이"];
+const clone = o => JSON.parse(JSON.stringify(o));
+const newId = () => "t"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
 // ---- 날짜 ----
 const pad = n => String(n).padStart(2,"0");
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());const k=(x.getDay()+6)%7;x.setDate(x.getDate()-k);return x;}
 const today = new Date();
-const thisMonday = mondayOf(today);
-let weekStart = new Date(thisMonday);
+let weekStart = mondayOf(today);
 let sel = ORDER[(today.getDay()+6)%7];
 
-// ---- 상태: weeks/<월요일날짜> = {checks:{mon:{id:true}}, hw:{mon:"..."}} ----
+// ---- 상태 ----
+// config/plan = {days:{mon:{label,cap,events,tasks}}}  (편집: 부모만)
+// weeks/<월요일날짜> = {checks:{mon:{id:true}}, hw:{"mon_id":"..."}}
+let plan = clone(DEFAULT_PLAN);
+let draft = null, dirty = false, confirmReset = false;
 let state = {checks:{},hw:{}};
-let db = null, unsub = null, writeTimer = null, writing = Promise.resolve(), readOnly = false;
+let db = null, user = null, canEditPlan = false, unsub = null, writeTimer = null, writing = Promise.resolve(), readOnly = false;
 const LS = k => "hajun-check:"+k;
 const weekKey = () => ymd(weekStart);
 const status = msg => document.getElementById("status").textContent = msg;
+const isEdit = () => location.hash === "#edit" && canEditPlan;
 
-function lsLoad(){try{const v=localStorage.getItem(LS(weekKey()));return v?JSON.parse(v):null}catch(e){return null}}
-function lsSave(){try{localStorage.setItem(LS(weekKey()),JSON.stringify(state))}catch(e){}}
+function lsGet(k){try{const v=localStorage.getItem(LS(k));return v?JSON.parse(v):null}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(LS(k),JSON.stringify(v))}catch(e){}}
 
-function subscribe(){
+function validPlan(p){return p && ORDER.every(k=>p[k] && Array.isArray(p[k].tasks))}
+
+function subscribeWeek(){
   if(unsub){unsub();unsub=null}
   state = {checks:{},hw:{}};
-  if(!db){state = lsLoad()||state; render(); return}
+  if(!db){state = lsGet(weekKey())||state; render(); return}
   render();
   let timer = setTimeout(()=>status("저장소에 아직 연결하지 못했어요. 체크는 이 기기에만 임시로 보여요."),10000);
   unsub = db.doc("weeks/"+weekKey()).onSnapshot(snap=>{
-    if(!snap.metadata.fromCache){clearTimeout(timer);status("체크하면 자동으로 저장돼요. 엄마·아빠도 같은 화면을 봐요.")}
+    if(!snap.metadata.fromCache){clearTimeout(timer);status(readOnly?"보기 전용이에요.":"체크하면 자동으로 저장돼요. 엄마·아빠도 같은 화면을 봐요.")}
     if(snap.metadata.hasPendingWrites) return;
     const d = snap.exists ? snap.data() : null;
-    const next = {checks:JSON.parse(JSON.stringify(d?.checks||{})),hw:{...(d?.hw||{})}};
-    const typing = document.activeElement && document.activeElement.classList.contains("hw");
-    if(typing) next.hw[sel] = state.hw[sel] || "";
+    const next = {checks:clone(d?.checks||{}),hw:{...(d?.hw||{})}};
+    const active = document.activeElement;
+    const typing = active && active.classList.contains("hw");
+    if(typing) next.hw[active.dataset.key] = state.hw[active.dataset.key] || "";
     if(JSON.stringify(next)===JSON.stringify(state)) return;
     state = next;
-    if(!typing) render();
-  },err=>{clearTimeout(timer);status("저장소 연결이 끊겼어요. 새로고침해 주세요.")});
+    if(!typing && !isEdit()) render();
+  },()=>{clearTimeout(timer);status("저장소 연결이 끊겼어요. 새로고침해 주세요.")});
 }
 
-function save(){
-  lsSave();
+function subscribePlan(){
+  if(!db){const p=lsGet("plan"); if(validPlan(p)) plan=p; return}
+  db.doc("config/plan").onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites) return;
+    const p = snap.exists ? snap.data()?.days : null;
+    plan = validPlan(p) ? clone(p) : clone(DEFAULT_PLAN);
+    if(!(isEdit() && dirty)) { draft = null; render(); }
+  },()=>{});
+}
+
+function saveWeek(){
+  lsSet(weekKey(),state);
   if(!db||readOnly) return;
   clearTimeout(writeTimer);
-  const key = weekKey(), body = JSON.parse(JSON.stringify(state));
+  const key = weekKey(), body = clone(state);
   writeTimer = setTimeout(()=>{
     writing = writing.then(()=>db.doc("weeks/"+key).set({...body,updated:new Date().toISOString()}))
       .catch(e=>{ if(e&&e.code==="invalid_argument"){readOnly=true;status("보기 전용이라 체크가 저장되지 않아요.")} else status("저장하지 못했어요. 잠시 뒤 다시 체크해 주세요."); });
   },400);
 }
 
-// ---- 화면 ----
-function dayStats(k){
-  const p = PLAN[k], c = state.checks[k]||{};
-  const total = p.tasks.length, done = p.tasks.filter(x=>c[x.id]).length;
-  const minTotal = p.tasks.reduce((s,x)=>s+x.min,0), minDone = p.tasks.filter(x=>c[x.id]).reduce((s,x)=>s+x.min,0);
-  return {total,done,minTotal,minDone};
+async function savePlan(){
+  const p = clone(draft);
+  ORDER.forEach(k=>{ p[k].tasks = p[k].tasks.filter(x=>x.name.trim()).map(x=>({...x,name:x.name.trim(),note:(x.note||"").trim(),min:Math.max(0,parseInt(x.min)||0)})); });
+  if(!db){ lsSet("plan",p); plan=p; dirty=false; draft=null; status("이 기기에 저장했어요."); render(); return; }
+  status("저장 중…");
+  try{
+    await db.doc("config/plan").set({days:p,updated:new Date().toISOString()});
+    plan=p; dirty=false; draft=null; status("저장했어요. 하준이 체크리스트에 바로 반영돼요."); render();
+  }catch(e){ status(e&&e.code==="invalid_argument" ? "할 일을 고칠 권한이 없어요. 페이지 주인(편집자)만 저장할 수 있어요." : "저장하지 못했어요. 잠시 뒤 다시 눌러 주세요."); }
 }
 
+// ---- 공통 ----
+function dayStats(k){
+  const p = plan[k], c = state.checks[k]||{};
+  const total = p.tasks.length, done = p.tasks.filter(x=>c[x.id]).length;
+  const minTotal = p.tasks.reduce((s,x)=>s+(+x.min||0),0), minDone = p.tasks.filter(x=>c[x.id]).reduce((s,x)=>s+(+x.min||0),0);
+  return {total,done,minTotal,minDone};
+}
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+
 function render(){
+  const edit = isEdit();
+  if(edit && !draft){ draft = clone(plan); dirty=false; }
+  document.getElementById("title").textContent = edit ? "할 일 편집" : "하준이 공부 체크";
+  document.getElementById("weeknav").hidden = edit;
+  document.getElementById("legend").hidden = edit;
+  const mb = document.getElementById("modeBtn");
+  mb.hidden = !canEditPlan;
+  mb.textContent = edit ? "체크리스트로" : "할 일 편집";
+  mb.href = edit ? "#" : "#edit";
+
   const end = new Date(weekStart); end.setDate(end.getDate()+6);
   document.getElementById("weekLabel").textContent = `${weekStart.getMonth()+1}/${weekStart.getDate()} – ${end.getMonth()+1}/${end.getDate()}`;
   const daysEl = document.getElementById("days"); daysEl.textContent = "";
+  const src = edit ? draft : plan;
   ORDER.forEach((k,i)=>{
     const d = new Date(weekStart); d.setDate(d.getDate()+i);
-    const s = dayStats(k);
-    const b = document.createElement("button");
-    b.className = "day"+(ymd(d)===ymd(today)?" today":"")+(k==="sun"?" sun":"");
+    const b = el("button","day"+(ymd(d)===ymd(today)?" today":"")+(k==="sun"?" sun":""));
     b.setAttribute("aria-pressed", k===sel);
-    b.setAttribute("aria-label", `${PLAN[k].label}요일 ${s.done}/${s.total} 완료`);
-    b.innerHTML = `<span class="d">${PLAN[k].label}</span><span class="n">${d.getMonth()+1}/${d.getDate()}</span><span class="bar"><i style="width:${s.total?Math.round(s.done/s.total*100):0}%"></i></span>`;
+    if(edit){
+      const n = src[k].tasks.length;
+      b.setAttribute("aria-label", `${src[k].label}요일 할 일 ${n}개`);
+      b.innerHTML = `<span class="d">${src[k].label}</span><span class="n">${n}개</span>`;
+    } else {
+      const s = dayStats(k);
+      b.setAttribute("aria-label", `${src[k].label}요일 ${s.done}/${s.total} 완료`);
+      b.innerHTML = `<span class="d">${src[k].label}</span><span class="n">${d.getMonth()+1}/${d.getDate()}</span><span class="bar"><i style="width:${s.total?Math.round(s.done/s.total*100):0}%"></i></span>`;
+    }
     b.onclick = ()=>{sel=k;render()};
     daysEl.appendChild(b);
   });
+  edit ? renderEditor() : renderChecklist();
+}
 
-  const p = PLAN[sel], c = state.checks[sel]||{}, s = dayStats(sel);
+// ---- 체크리스트 ----
+function renderChecklist(){
+  const p = plan[sel], c = state.checks[sel]||{}, s = dayStats(sel);
   const sheet = document.getElementById("sheet"); sheet.textContent = "";
-  const head = document.createElement("div"); head.className="sheet-head";
+  const head = el("div","sheet-head");
   const capTxt = sel==="sun" ? "가족 시간 · 저녁 보강만" : `공부 시간 ${p.cap}분${sel==="sat"?" 이상":""}`;
   head.innerHTML = `<div class="sheet-title"><h2>${p.label}요일</h2><span class="sum"><b>${s.done}</b> / ${s.total} 완료 · ${s.minDone}분 / 약 ${s.minTotal}분 · ${capTxt}</span></div>
     <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="${s.total}" aria-valuenow="${s.done}"><i style="width:${s.total?s.done/s.total*100:0}%"></i></div>`;
-  const evs = document.createElement("div"); evs.className="events";
-  p.events.forEach(e=>{const sp=document.createElement("span");sp.className="ev";sp.textContent=e;evs.appendChild(sp)});
+  const evs = el("div","events");
+  (p.events||[]).forEach(e=>evs.appendChild(el("span","ev",e)));
   head.appendChild(evs); sheet.appendChild(head);
 
-  const ul = document.createElement("ul");
+  const ul = el("ul");
   p.tasks.forEach(x=>ul.appendChild(row(x,c)));
   sheet.appendChild(ul);
-  const g = document.createElement("div"); g.className="group"; g.textContent="매일"; sheet.appendChild(g);
-  const ul2 = document.createElement("ul"); ul2.appendChild(row(DAILY_BOOK,c)); sheet.appendChild(ul2);
+  sheet.appendChild(el("div","group","매일"));
+  const ul2 = el("ul"); ul2.appendChild(row(DAILY_BOOK,c)); sheet.appendChild(ul2);
 
   if(s.total && s.done===s.total){
-    const r=document.createElement("div");r.className="rest";
-    r.innerHTML="<strong>오늘 할 일 끝!</strong>수고했어, 하준아.";
-    sheet.appendChild(r);
+    const r=el("div","rest"); r.innerHTML="<strong>오늘 할 일 끝!</strong>수고했어, 하준아."; sheet.appendChild(r);
   }
 }
 
 function row(x,c){
-  const li = document.createElement("li"); li.className="task"+(c[x.id]?" done":"");
+  const li = el("li","task"+(c[x.id]?" done":""));
   const cb = document.createElement("input"); cb.type="checkbox"; cb.id=`cb-${sel}-${x.id}`; cb.checked=!!c[x.id];
   cb.onchange = ()=>{
     const m = state.checks[sel] = {...(state.checks[sel]||{})};
     if(cb.checked) m[x.id]=true; else delete m[x.id];
-    save(); render();
+    saveWeek(); render();
   };
-  const body = document.createElement("div"); body.className="tbody";
-  const line = document.createElement("label"); line.className="tline"; line.htmlFor=cb.id;
-  const tag = document.createElement("span"); tag.className="tag"; tag.style.setProperty("--c",`var(${C[x.tag]||"--etc"})`); tag.textContent=x.tag;
-  const nm = document.createElement("span"); nm.className="tname"; nm.textContent=x.name;
-  line.append(tag,nm); body.appendChild(line);
-  if(x.note){const n=document.createElement("span");n.className="tnote";n.textContent=x.note;body.appendChild(n)}
+  const body = el("div","tbody");
+  const line = el("label","tline"); line.htmlFor=cb.id;
+  const tag = el("span","tag",x.tag); tag.style.setProperty("--c",`var(${C[x.tag]||"--etc"})`);
+  line.append(tag, el("span","tname",x.name)); body.appendChild(line);
+  if(x.note) body.appendChild(el("span","tnote",x.note));
   if(x.hw){
-    const ta=document.createElement("textarea"); ta.className="hw"; ta.id=`hw-${sel}`; ta.rows=1;
-    ta.placeholder="과외 숙제 적기 (예: 3800제 p.24–27, 리딩 Unit 5)"; ta.value=state.hw[sel]||"";
-    ta.setAttribute("aria-label",`${PLAN[sel].label}요일 영어 숙제 내용`);
-    ta.oninput=()=>{state.hw={...state.hw,[sel]:ta.value};save()};
+    const key = `${sel}_${x.id}`;
+    const ta=el("textarea","hw"); ta.id=`hw-${key}`; ta.dataset.key=key; ta.rows=1;
+    ta.placeholder="숙제 내용 적기 (예: 3800제 p.24–27, 리딩 Unit 5)"; ta.value=state.hw[key]||"";
+    ta.setAttribute("aria-label",`${x.name} 숙제 내용`);
+    ta.oninput=()=>{state.hw={...state.hw,[key]:ta.value};saveWeek()};
     body.appendChild(ta);
   }
-  const mn = document.createElement("span"); mn.className="min"; mn.textContent = x.min?`${x.min}분`:"";
-  li.append(cb,body,mn);
+  li.append(cb, body, el("span","min", x.min?`${x.min}분`:""));
   return li;
 }
 
-document.getElementById("prevWeek").onclick=()=>{weekStart.setDate(weekStart.getDate()-7);subscribe()};
-document.getElementById("nextWeek").onclick=()=>{weekStart.setDate(weekStart.getDate()+7);subscribe()};
+// ---- 편집 ----
+function markDirty(){ if(!dirty){dirty=true; const d=document.getElementById("dirtyNote"); if(d) d.hidden=false; const sb=document.getElementById("saveBtn"); if(sb) sb.disabled=false;} }
+
+function renderEditor(){
+  const p = draft[sel];
+  const sheet = document.getElementById("sheet"); sheet.textContent = "";
+
+  const top = el("div","ed-section");
+  const t1 = el("div","sheet-title"); t1.appendChild(el("h2",null,`${p.label}요일`));
+  const tot = p.tasks.reduce((s,x)=>s+(parseInt(x.min)||0),0);
+  t1.appendChild(el("span","sum",`할 일 ${p.tasks.length}개 · 약 ${tot}분`)); top.appendChild(t1);
+
+  const capRow = el("div","ed-row");
+  const capL = el("label","lbl","하루 공부 가능 시간(분)"); capL.htmlFor="ed-cap";
+  const cap = el("input","inp num"); cap.id="ed-cap"; cap.type="number"; cap.min="0"; cap.step="10"; cap.value=p.cap;
+  cap.oninput=()=>{p.cap=Math.max(0,parseInt(cap.value)||0); markDirty()};
+  capRow.append(capL,cap); top.appendChild(capRow);
+
+  const evL = el("label","lbl","고정 일정 (한 줄에 하나)"); evL.htmlFor="ed-events";
+  const ev = el("textarea","inp"); ev.id="ed-events"; ev.rows=3; ev.value=(p.events||[]).join("\n");
+  ev.oninput=()=>{p.events=ev.value.split("\n").map(s=>s.trim()).filter(Boolean); markDirty()};
+  top.append(evL,ev);
+  sheet.appendChild(top);
+
+  sheet.appendChild(el("div","group","할 일 (위에서부터 순서대로 보여요)"));
+  const ul = el("ul");
+  p.tasks.forEach((x,i)=>ul.appendChild(edRow(p,x,i)));
+  sheet.appendChild(ul);
+
+  const add = el("div","ed-section");
+  const addBtn = el("button","btn","+ 할 일 추가");
+  addBtn.onclick=()=>{ const x={id:newId(),tag:"수학",name:"",min:15,note:""}; p.tasks.push(x); markDirty(); render(); const inp=document.getElementById(`ed-name-${x.id}`); if(inp) inp.focus(); };
+  add.appendChild(addBtn); sheet.appendChild(add);
+
+  const foot = el("div","ed-foot");
+  const left = el("div","ed-row");
+  const save = el("button","btn primary","저장"); save.id="saveBtn"; save.disabled=!dirty; save.onclick=savePlan;
+  const cancel = el("button","btn","되돌리기"); cancel.onclick=()=>{draft=null;dirty=false;confirmReset=false;status("저장된 내용으로 되돌렸어요.");render()};
+  const dn = el("span","dirty","저장하지 않은 변경이 있어요"); dn.id="dirtyNote"; dn.hidden=!dirty;
+  left.append(save,cancel,dn);
+  const right = el("div","ed-row");
+  if(confirmReset){
+    const cf = el("span","confirm","처음 배치안으로 바꿀까요? (저장해야 반영)");
+    const yes = el("button","btn danger","바꾸기"); yes.onclick=()=>{draft=clone(DEFAULT_PLAN);confirmReset=false;dirty=true;render()};
+    const no = el("button","btn","취소"); no.onclick=()=>{confirmReset=false;render()};
+    right.append(cf,yes,no);
+  } else {
+    const rs = el("button","btn danger","처음 배치안으로"); rs.onclick=()=>{confirmReset=true;render()};
+    right.appendChild(rs);
+  }
+  foot.append(left,right); sheet.appendChild(foot);
+}
+
+function edRow(p,x,i){
+  const li = el("li","edtask");
+  const r1 = el("div","ed-row");
+  const tag = el("select","inp"); tag.id=`ed-tag-${x.id}`; tag.setAttribute("aria-label","과목");
+  TAGS.forEach(tg=>{const o=el("option",null,tg);o.value=tg;if(tg===x.tag)o.selected=true;tag.appendChild(o)});
+  tag.onchange=()=>{x.tag=tag.value;markDirty()};
+  const name = el("input","inp grow"); name.id=`ed-name-${x.id}`; name.value=x.name; name.placeholder="할 일 이름 (예: 연산 20문제)"; name.setAttribute("aria-label","할 일 이름");
+  name.oninput=()=>{x.name=name.value;markDirty()};
+  r1.append(tag,name);
+
+  const r2 = el("div","ed-row");
+  const min = el("input","inp num"); min.id=`ed-min-${x.id}`; min.type="number"; min.min="0"; min.step="5"; min.value=x.min; min.setAttribute("aria-label","예상 시간(분)");
+  min.oninput=()=>{x.min=Math.max(0,parseInt(min.value)||0);markDirty()};
+  const note = el("input","inp grow"); note.id=`ed-note-${x.id}`; note.value=x.note||""; note.placeholder="메모 (교재, 주의할 점)"; note.setAttribute("aria-label","메모");
+  note.oninput=()=>{x.note=note.value;markDirty()};
+  r2.append(min, el("span","chk","분"), note);
+
+  const r3 = el("div","ed-row");
+  const hwL = el("label","chk"); const hw = el("input"); hw.type="checkbox"; hw.id=`ed-hw-${x.id}`; hw.checked=!!x.hw;
+  hw.onchange=()=>{ if(hw.checked) x.hw=true; else delete x.hw; markDirty(); };
+  hwL.append(hw, document.createTextNode("숙제 메모 칸 보이기"));
+  const up = el("button","mini","↑"); up.setAttribute("aria-label","위로"); up.disabled=i===0;
+  up.onclick=()=>{[p.tasks[i-1],p.tasks[i]]=[p.tasks[i],p.tasks[i-1]];markDirty();render()};
+  const down = el("button","mini","↓"); down.setAttribute("aria-label","아래로"); down.disabled=i===p.tasks.length-1;
+  down.onclick=()=>{[p.tasks[i+1],p.tasks[i]]=[p.tasks[i],p.tasks[i+1]];markDirty();render()};
+  const del = el("button","mini del","삭제"); del.onclick=()=>{p.tasks.splice(i,1);markDirty();render()};
+  r3.append(hwL, el("span","spacer"), up, down, del);
+
+  li.append(r1,r2,r3);
+  return li;
+}
+
+// ---- 이벤트 ----
+document.getElementById("prevWeek").onclick=()=>{weekStart.setDate(weekStart.getDate()-7);subscribeWeek()};
+document.getElementById("nextWeek").onclick=()=>{weekStart.setDate(weekStart.getDate()+7);subscribeWeek()};
+window.addEventListener("hashchange",()=>{ if(location.hash!=="#edit"){draft=null;dirty=false;confirmReset=false;} render(); });
 
 render();
 (async()=>{
   try{ db = window.claude?.use ? await window.claude.use("db") : null }catch(e){ db=null }
-  if(!db) status("이 화면에서는 체크가 이 기기에만 저장돼요.");
-  subscribe();
+  try{ user = window.claude?.use ? await window.claude.use("user") : null }catch(e){ user=null }
+  canEditPlan = db ? !!(user && user.canEdit && await user.canEdit()) : true;
+  if(!db) status("이 화면에서는 체크와 편집 내용이 이 기기에만 저장돼요.");
+  subscribePlan();
+  subscribeWeek();
 })();
 </script>
